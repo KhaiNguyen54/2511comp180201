@@ -3,6 +3,11 @@ let currentSpeed = 1.0;
 let isPlaying = false;
 let audio = null;
 
+// Biến cho chức năng điều khiển cá mập
+let sharkElement = null;
+let isSharkControlled = false;
+let lastMouseX = 0;
+
 // Danh sách nhạc nền
 const musicList = [
     "sound1.mp3"
@@ -70,18 +75,18 @@ function createFish() {
 
 // Tạo cá mập
 function createShark() {
-    const shark = document.createElement('div');
-    shark.className = 'shark';
-    shark.innerHTML = `
+    sharkElement = document.createElement('div'); // Gán vào biến toàn cục
+    sharkElement.className = 'shark';
+    sharkElement.innerHTML = `
         <div class="shark-body">
             <div class="shark-fin"></div>
             <div class="shark-eye"></div>
             <div class="shark-tail"></div>
         </div>
     `;
-    shark.style.top = '25%';
-    shark.style.animationDuration = '25s';
-    aquarium.appendChild(shark);
+    sharkElement.style.top = '25%';
+    sharkElement.style.animationDuration = '25s';
+    aquarium.appendChild(sharkElement);
 }
 
 // Tạo rùa
@@ -163,6 +168,50 @@ function toggleMusic() {
     }
 }
 
+// --- Chức năng điều khiển cá mập ---
+
+// Hàm di chuyển cá mập theo chuột
+function moveSharkWithMouse(event) {
+    if (!isSharkControlled || !sharkElement) return;
+
+    // Lấy tọa độ chuột so với hồ cá
+    const rect = aquarium.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    // Lật cá mập theo hướng di chuyển của chuột
+    if (x > lastMouseX) {
+        sharkElement.style.transform = 'scaleX(0.5)'; // Quay sang phải
+    } else if (x < lastMouseX) {
+        sharkElement.style.transform = 'scaleX(-0.5)'; // Quay sang trái
+    }
+    lastMouseX = x;
+
+    // Cập nhật vị trí của cá mập (trừ đi một nửa kích thước để con trỏ ở giữa)
+    sharkElement.style.left = (x - sharkElement.offsetWidth / 2) + 'px';
+    sharkElement.style.top = (y - sharkElement.offsetHeight / 2) + 'px';
+}
+
+// Hàm bật/tắt chế độ điều khiển
+function toggleSharkControl() {
+    isSharkControlled = !isSharkControlled;
+    const btn = document.getElementById('controlSharkBtn');
+
+    if (isSharkControlled) {
+        sharkElement.classList.add('controlled');
+        btn.textContent = '✅ Đang Điều Khiển';
+        btn.classList.add('playing'); // Tái sử dụng style của nút nhạc cho nổi bật
+        aquarium.addEventListener('mousemove', moveSharkWithMouse);
+    } else {
+        sharkElement.classList.remove('controlled');
+        // Đặt lại animation duration để đồng bộ với tốc độ hiện tại
+        updateSpeed(currentSpeed);
+        btn.textContent = '🕹️ Điều Khiển Cá Mập';
+        btn.classList.remove('playing');
+        aquarium.removeEventListener('mousemove', moveSharkWithMouse);
+    }
+}
+
 // Khởi tạo
 createBubbles();
 createSeaweed();
@@ -181,6 +230,10 @@ document.getElementById('increaseSpeed').addEventListener('click', () => {
 });
 
 document.getElementById('musicBtn').addEventListener('click', toggleMusic);
+
+document.getElementById('controlSharkBtn').addEventListener('click', () => {
+    if (sharkElement) toggleSharkControl();
+});
 
 // Cập nhật tốc độ ban đầu
 updateSpeed(1.0);
