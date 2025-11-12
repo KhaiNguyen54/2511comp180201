@@ -115,6 +115,13 @@ body {
 .shark {
     position: absolute;
     animation: sharkSwim linear infinite;
+    /* Thêm transition để di chuyển theo chuột mượt hơn */
+    transition: transform 0.3s ease-out, top 0.3s ease-out, left 0.3s ease-out;
+}
+
+/* Lớp này sẽ được thêm bằng JS để dừng animation bơi tự động */
+.shark.controlled {
+    animation-play-state: paused;
 }
 
 .shark-body {
@@ -390,3 +397,21 @@ button:active {
 #musicBtn.playing {
     background: linear-gradient(135deg, #ef4444, #dc2626);
 }
+
+
+@media(max-width:1260px){
+    head{
+        position: absolute;
+        display: none;
+        top:100%;
+        right: 0;
+        width: 40%;
+        border-left: 3px solid #b74b4b;
+        border-bottom: 3px solid #b74b4b;
+        border-bottom-left-radius: 2rem;
+        padding: 1rem solid;
+        background-color: #161616;
+        border-top: 0.1rem solid rgba(0,0,0,0.1);
+        
+       
+    }}
